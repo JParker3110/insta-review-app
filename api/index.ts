@@ -1,44 +1,37 @@
-// Import Dotenv
-require("dotenv").config();
 
-// Import Express
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+import { getAllPost, addPost, getPostByID } from "../routes/post";
+import { getCommentsByID, addComment } from "../routes/comments";
+import { addPostLike, addCommentLike, getPostLikesByID } from "../routes/postLikes";
+import { validateContent, validatePostID, validateCommentID } from "../validation";
 
-// Import CORS
-const cors = require("cors");
+dotenv.config();
 
-// Import Axios
-const axios = require("axios");
-
-// create an express application
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// define a port
-const PORT = process.env.PORT;
-
-
-// Define our Middleware
-// Use CORS Middleware
 const corsOptions = {
   origin: process.env.SNACKS_CLIENT,
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-
-// Use JSON middleware to parse request bodies
 app.use(express.json());
 
-// Define our Routes
-// Home Route
-app.get("/", (request: Request, response: Response, next: NextFunction) => {
+app.get("/", (request: Request, response: Response) => {
   response.json({ message: "welcome to our server" });
 });
 
+app.post("/posts", validateContent, addPost);
+app.get("/posts", getAllPost);
+app.get("/posts/:id", getPostByID);
+app.post("/posts/:id/comments", validateContent, validatePostID, addComment);
+app.post("/posts/:id/likes", validatePostID, addPostLike);
+app.post("/comments/:id/likes", validateCommentID, addCommentLike);
+app.get("/comments/:id/postLikes", getPostLikesByID);
 
-// Error Handling
-// Generic Error Handling
 app.use((error: Error, request: Request, response: Response, next: NextFunction) => {
   console.error(error.stack);
   response.status(500).json({
@@ -48,18 +41,15 @@ app.use((error: Error, request: Request, response: Response, next: NextFunction)
   });
 });
 
-// 404 Resource not found Error Handling
-app.use((request: Request, response: Response, next: NextFunction) => {
+app.use((request: Request, response: Response) => {
   response.status(404).json({
-    error:
-      "Resource not found. Are you sure you're looking in the right place?",
+    error: "Resource not found. Are you sure you're looking in the right place?",
   });
 });
 
-// make the server listen on our port
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`The server is running on http://localhost:${PORT}`);
 });
 
-// export our app for testing
-module.exports = app;
+export default app;
+
