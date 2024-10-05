@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from "express";
-import { supabase } from "../supabaseInstance";
+import { supabase } from "../../supabaseInstance";
 
 // Get all comments for a specific post
 const getCommentsByID = async (

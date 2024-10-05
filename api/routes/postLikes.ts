@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { supabase } from "../supabaseInstance";
+import { supabase } from "../../supabaseInstance";
 
 const addPostLike = async (
   request: Request,

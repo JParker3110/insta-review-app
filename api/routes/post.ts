@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { supabase } from "../supabaseInstance";
+import { supabase } from "../../supabaseInstance";
 
 // Create a new post
 const addPost = async (

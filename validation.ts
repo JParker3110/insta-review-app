@@ -1,52 +1,59 @@
-import { Request, Response, NextFunction } from "express";
-import { supabase } from "./supabaseInstance";
+import { Request, Response, NextFunction } from 'express';
+import { supabase } from './supabaseInstance';
 
-// Validate content fields
-const validateContent = (request: Request, response: Response, next: NextFunction): void => {
+export const validateContent = (request: Request, response: Response, next: NextFunction): void => {
   const { content } = request.body;
   if (!content || typeof content !== 'string' || content.trim() === '') {
     response.status(400).json({ error: 'Content must be a non-empty string' });
-  } else {
-    next();
+    return;
   }
+  next();
 };
 
-// Validate existence of PostID
-const validatePostID = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-  const { PostID } = request.body;
+export const validatePostID = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
   try {
+    const postID = request.params.id;
     const { data, error } = await supabase
-      .from('Post')
-      .select('id')
-      .eq('id', PostID);
+      .from('posts')
+      .select('*')
+      .eq('id', postID);
 
-    if (error || data.length === 0) {
-      response.status(400).json({ error: 'Invalid PostID' });
-    } else {
-      next();
+    if (error) {
+      response.status(500).json({ error: error.message });
+      return;
     }
+
+    if (!data || data.length === 0) {
+      response.status(404).json({ error: 'Post not found.' });
+      return;
+    }
+
+    next();
   } catch (error) {
     next(error);
   }
 };
 
-// Validate existence of CommentID
-const validateCommentID = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-  const { CommentID } = request.body;
+export const validateCommentID = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
   try {
+    const commentID = request.params.id;
     const { data, error } = await supabase
       .from('comment')
-      .select('id')
-      .eq('id', CommentID);
+      .select('*')
+      .eq('id', commentID);
 
-    if (error || data.length === 0) {
-      response.status(400).json({ error: 'Invalid CommentID' });
-    } else {
-      next();
+    if (error) {
+      response.status(500).json({ error: error.message });
+      return;
     }
+
+    if (!data || data.length === 0) {
+      response.status(404).json({ error: 'Comment not found.' });
+      return;
+    }
+
+    next();
   } catch (error) {
     next(error);
   }
 };
-
-export { validateContent, validatePostID, validateCommentID };

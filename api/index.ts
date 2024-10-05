@@ -1,10 +1,9 @@
-
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { getAllPost, addPost, getPostByID } from "../routes/post";
-import { getCommentsByID, addComment } from "../routes/comments";
-import { addPostLike, addCommentLike, getPostLikesByID } from "../routes/postLikes";
+import { getAllPost, addPost, getPostByID } from "../api/routes/post";
+import { getCommentsByID, addComment } from "../api/routes/comments";
+import { addPostLike, addCommentLike, getPostLikesByID } from "../api/routes/postLikes";
 import { validateContent, validatePostID, validateCommentID } from "../validation";
 
 dotenv.config();
@@ -28,6 +27,7 @@ app.post("/posts", validateContent, addPost);
 app.get("/posts", getAllPost);
 app.get("/posts/:id", getPostByID);
 app.post("/posts/:id/comments", validateContent, validatePostID, addComment);
+app.get("/posts/:id/comments", getCommentsByID);
 app.post("/posts/:id/likes", validatePostID, addPostLike);
 app.post("/comments/:id/likes", validateCommentID, addCommentLike);
 app.get("/comments/:id/postLikes", getPostLikesByID);
